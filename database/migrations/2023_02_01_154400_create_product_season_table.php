@@ -13,10 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('category_seasons', function (Blueprint $table) {
+        Schema::create('product_season', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 45);
+            $table->integer('seasonal_price');
+            $table->foreignId('product_id')->references('id')->on('products');;
+            $table->foreignId('season_id')->references('id')->on('seasons');;
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -27,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('category_seasons');
+        Schema::dropIfExists('product_season');
     }
 };

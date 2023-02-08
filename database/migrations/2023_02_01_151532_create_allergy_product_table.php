@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('allergy_product', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('allergy_id');
-            $table->foreignId('product_id');
+            $table->foreignId('allergy_id')->references('id')->on('allergies');
+            $table->foreignId('product_id')->references('id')->on('products');
             $table->timestamps();
             $table->softDeletes();
         });

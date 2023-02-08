@@ -17,7 +17,8 @@ return new class extends Migration
             $table->id();
             $table->decimal('discount_price',10,2);
             $table->date('discount_from');
-            $table->foreignId('product_id');
+            $table->date('discount_until');
+            $table->foreignId('product_id')->references('id')->on('products');
             $table->timestamps();
             $table->softDeletes();
         });

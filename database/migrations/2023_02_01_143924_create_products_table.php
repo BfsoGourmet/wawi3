@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->integer('sku');
+            $table->string('sku', 20);
             $table->tinyInteger('in_stock');
             $table->string('title', 45);
             $table->tinyText('short_description');
@@ -25,6 +25,7 @@ return new class extends Migration
             $table->decimal('calories', 5, 2);
             $table->decimal('sugar_in_calories', 5, 2);
             $table->string('slug', 100);
+            $table->decimal('price', 10, 2);
             $table->timestamps();
             $table->softDeletes();
         });
