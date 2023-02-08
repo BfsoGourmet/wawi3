@@ -1,7 +1,6 @@
 {
     "products": [
         {
-            "id": 1,
             "sku": "(SKU number)",
             "in_stock": "1 or 0",
             "title": "",
@@ -9,60 +8,25 @@
             "description": "",
             "is_vegeterian": "1 or 0",
             "is_vegan": "1 or 0",
-            "calories": "Calories as number",
-            "sugar_in_calories": "Sugar in Calories as number",
-            "created_at": "YYYY-MM-DD hh:mm:ss",
-            "updated_at": "YYYY-MM-DD hh:mm:ss",
-            "deleted_at": "YYYY-MM-DD hh:mm:ss",
+            "calories": "Calories in kcal",
+            "sugar_in_calories": "Sugar in calories in gramm",
             "slug": "",
-            "discounts": [
-                {
-                    "id": 1,
-                    "discount_price": "Decimal number",
-                    "discount_from": "YYYY-MM-DD hh:mm:ss",
-                    "discount_until": "YYYY-MM-DD hh:mm:ss",
-                    "product_id": 1,
-                    "created_at": "YYYY-MM-DD hh:mm:ss",
-                    "updated_at": "YYYY-MM-DD hh:mm:ss",
-                    "deleted_at": "YYYY-MM-DD hh:mm:ss"
-                }
-            ],
+            "price": "number",
+            "image": "URL to image",
             "categories": [
                 {
-                    "id": 1,
-                    "name": "",
-                    "created_at": "YYYY-MM-DD hh:mm:ss",
-                    "updated_at": "YYYY-MM-DD hh:mm:ss",
-                    "deleted_at": "YYYY-MM-DD hh:mm:ss"
-                }
-            ],
-            "seasons": [
-                {
-                    "id": 1,
-                    "name": "",
-                    "seasonal_price": 10.1,
-                    "created_at": "YYYY-MM-DD hh:mm:ss",
-                    "updated_at": "YYYY-MM-DD hh:mm:ss",
-                    "deleted_at": "YYYY-MM-DD hh:mm:ss"
+                    "name": ""
                 }
             ],
             "allergies": [
                 {
-                    "id": 1,
-                    "name": "",
-                    "created_at": "YYYY-MM-DD hh:mm:ss",
-                    "updated_at": "YYYY-MM-DD hh:mm:ss",
-                    "deleted_at": "YYYY-MM-DD hh:mm:ss"
+                    "name": ""
                 }
             ],
             "suppliers": [
                 {
-                    "id": 1,
                     "name": "",
-                    "stock": 10,
-                    "created_at": "YYYY-MM-DD hh:mm:ss",
-                    "updated_at": "YYYY-MM-DD hh:mm:ss",
-                    "deleted_at": "YYYY-MM-DD hh:mm:ss"
+                    "stock": 10
                 }
             ]
         }
