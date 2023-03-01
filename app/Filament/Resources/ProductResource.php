@@ -72,6 +72,7 @@ class ProductResource extends Resource
                 Forms\Components\Card::make([           
                     Forms\Components\TextInput::make('price')
                     ->label('Normal price')
+                    ->suffix('CHF')
                     ->numeric()
                     ->columnSpan(2)
                     ->required(),
@@ -84,6 +85,7 @@ class ProductResource extends Resource
                                 ->options(Season::all()->pluck('name', 'id'))
                                 ->required(),
                             Forms\Components\TextInput::make('seasonal_price')
+                                ->suffix('CHF')
                                 ->numeric()
                                 ->required()
                         ]),
@@ -94,6 +96,7 @@ class ProductResource extends Resource
                         ->schema([
                             Forms\Components\TextInput::make('discount_price')
                                 ->label('Discount Price')
+                                ->suffix('CHF')
                                 ->numeric()
                                 ->required(),
                             Forms\Components\DateTimePicker::make('discount_from')
@@ -121,12 +124,14 @@ class ProductResource extends Resource
 
                 Forms\Components\Card::make([
                     Forms\Components\TextInput::make('calories')
-                    ->label('Calories in kcal')
+                    ->label('Calories')
+                    ->suffix('kCal')
                     ->numeric()
                     ->maxValue(9999.99)
                     ->required(),
                     Forms\Components\TextInput::make('sugar_in_calories')
-                        ->label('Sugar in calories')
+                        ->label('Sugar')
+                        ->suffix('cal')
                         ->minValue(0)
                         ->maxValue(999.99)
                         ->numeric(),
