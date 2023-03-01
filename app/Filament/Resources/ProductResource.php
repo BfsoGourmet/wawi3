@@ -6,6 +6,7 @@ use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Season;
 use Closure;
 use Filament\Forms;
 use Filament\Resources\Form;
@@ -28,10 +29,6 @@ class ProductResource extends Resource
 
     protected static ?string $navigationLabel = 'Products';
 
-    private static function getImageNameForStorage(): string {
-        return md5(uniqid() . time());
-    }
-
     public static function form(Form $form): Form
     {
         return $form
@@ -49,11 +46,6 @@ class ProductResource extends Resource
                     ->label('Slug')
                     ->rules(['alpha_dash'])
                     ->unique(ignorable: fn ($record) => $record)
-                    ->required(),
-                    
-                Forms\Components\TextInput::make('price')
-                    ->label('Price')
-                    ->numeric()
                     ->required(),
 
                 Forms\Components\Card::make([
@@ -73,21 +65,56 @@ class ProductResource extends Resource
                 Forms\Components\FileUpload::make('image')
                     ->label('Image')
                     ->multiple(false)
-                    ->directory('storage/product_images')
-                    ->image()
-                    ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
-                        return ProductResource::getImageNameForStorage();
-                    }),
+                    ->directory('product_images')
+                    ->image(),
+
+                Forms\Components\Card::make([           
+                    Forms\Components\TextInput::make('price')
+                    ->label('Normal price')
+                    ->numeric()
+                    ->columnSpan(2)
+                    ->required(),
+
+                    Forms\Components\Repeater::make('seasons')
+                        ->relationship('seasonPrices')
+                        ->schema([
+                            Forms\Components\Select::make('season_id')
+                                ->label('season')
+                                ->options(Season::all()->pluck('name', 'id'))
+                                ->required(),
+                            Forms\Components\TextInput::make('seasonal_price')
+                                ->numeric()
+                                ->required()
+                        ]),
+
+                    Forms\Components\Repeater::make('discounts')
+                        ->relationship('discounts')
+                        ->createItemButtonLabel('Add discount')
+                        ->schema([
+                            Forms\Components\TextInput::make('discount_price')
+                                ->label('Discount Price')
+                                ->numeric()
+                                ->required(),
+                            Forms\Components\DateTimePicker::make('discount_from')
+                                ->label('From')
+                                ->required(),
+                            Forms\Components\DateTimePicker::make('discount_until')
+                                ->label('Until')
+                                ->after(function ($get) { return $get('discount_from'); })
+                                ->required()
+                        ]),
+                ])->columns(),
 
                 Forms\Components\Card::make([
                     Forms\Components\TextInput::make('calories')
                     ->label('Calories in kcal')
-                    ->maxLength(4)
                     ->numeric()
+                    ->maxValue(9999.99)
                     ->required(),
                     Forms\Components\TextInput::make('sugar_in_calories')
                         ->label('Sugar in calories')
-                        ->maxLength(3)
+                        ->minValue(0)
+                        ->maxValue(999.99)
                         ->numeric(),
                     Forms\Components\Checkbox::make('is_vegetarian')
                         ->label('Vegetarian'),
