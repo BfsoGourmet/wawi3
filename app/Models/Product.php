@@ -24,7 +24,8 @@ class Product extends Model
         'calories',
         'sugar_in_calories',
         'slug',
-        'price'
+        'price',
+        'image'
     ];
 
 
