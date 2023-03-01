@@ -44,4 +44,13 @@ class Product extends Model
     public function seasons(): BelongsToMany {
         return $this->belongsToMany(Product::class, 'product_season', 'season_id', 'product_id');
     }
+
+    public function suppliers(): BelongsToMany {
+        return $this->belongsToMany(Supplier::class, 'product_supplier', 'supplier_id', 'product_id');
+    }
+
+    public function supplierStocks(): HasMany {
+        return $this->hasMany(ProductSupplier::class);
+    }
+
 }

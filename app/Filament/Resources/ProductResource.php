@@ -7,6 +7,7 @@ use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Season;
+use App\Models\Supplier;
 use Closure;
 use Filament\Forms;
 use Filament\Resources\Form;
@@ -104,6 +105,19 @@ class ProductResource extends Resource
                                 ->required()
                         ]),
                 ])->columns(),
+
+                Forms\Components\Repeater::make('supplierStocks')
+                    ->relationship('supplierStocks')
+                    ->schema([
+                        Forms\Components\Select::make('supplier_id')
+                            ->label('Supplier')
+                            ->options(Supplier::all()->pluck('name', 'id'))
+                            ->required(),
+                        Forms\Components\TextInput::make('stock')
+                            ->numeric()
+                            ->required()
+                    ])
+                    ->required(),
 
                 Forms\Components\Card::make([
                     Forms\Components\TextInput::make('calories')
