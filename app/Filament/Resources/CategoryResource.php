@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\SupplierResource\Pages;
-use App\Filament\Resources\SupplierResource\RelationManagers;
-use App\Models\Supplier;
+use App\Filament\Resources\CategoryResource\Pages;
+use App\Filament\Resources\CategoryResource\RelationManagers;
+use App\Models\Category;
 use Filament\Forms;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
@@ -13,37 +13,42 @@ use Filament\Tables;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class SupplierResource extends Resource
+class CategoryResource extends Resource
 {
-    protected static ?string $model = Supplier::class;
+    protected static ?string $model = Category::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
-    
+
+    protected static ?string $modelLabel = 'Category';
+
+    protected static ?string $modelPluralLabel = 'Categories';
+
+    protected static ?string $navigationLabel = 'Categories';
+
     protected static ?string $navigationGroup = 'Product components';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')->required(),
+                Forms\Components\TextInput::make('name')
+                    ->label('Name')
+                    ->required()
             ]);
     }
 
     public static function table(Table $table): Table
     {
-        return $table->columns([
-    
-            Tables\Columns\TextColumn::make('name'),
-            Tables\Columns\TextColumn::make('created_at')->dateTime('d.m.Y'),
-            Tables\Columns\TextColumn::make('updated_at')->dateTime('d.m.Y'),
-        
-        ])
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Name')
+            ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
@@ -60,9 +65,9 @@ class SupplierResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListSuppliers::route('/'),
-            'create' => Pages\CreateSupplier::route('/create'),
-            'edit' => Pages\EditSupplier::route('/{record}/edit'),
+            'index' => Pages\ListCategories::route('/'),
+            'create' => Pages\CreateCategory::route('/create'),
+            'edit' => Pages\EditCategory::route('/{record}/edit'),
         ];
     }    
 }

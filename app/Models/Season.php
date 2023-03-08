@@ -10,6 +10,8 @@ class Season extends Model
 {
     use HasFactory;
 
+    protected $table = 'seasons';
+
     protected $fillable = [
         'name'
     ];
