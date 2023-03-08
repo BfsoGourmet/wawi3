@@ -54,4 +54,8 @@ class Product extends Model
         return $this->hasMany(ProductSupplier::class);
     }
 
+    public function deliveries(): HasMany{
+        return $this->hasMany(Delivery::class);
+    }
+
 }
