@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,6 +30,20 @@ class Product extends Model
     ];
 
 
+    public function getCurrentPrice() {
+        return 42069;
+        
+        $assignedSeasonsForCurrentDate = Season::whereHas('seasonDates', function (Builder $query) {
+                                                    $query->where('season_dates.date_from', '>=', now());
+                                                    $query->where('season_dates.date_until', '<=', now());
+                                                })
+                                                ->whereIn('season.id', $this->seasons->map(fn ($season) => $season->id))
+                                                ->get();
+
+        dd($this->id, $this->seasons()->allRelatedIds());
+    }
+
+
     public function categories(): BelongsToMany {
         return $this->belongsToMany(Category::class, 'category_product', 'category_id', 'product_id');
     }
@@ -43,7 +58,7 @@ class Product extends Model
     }
 
     public function seasons(): BelongsToMany {
-        return $this->belongsToMany(Product::class, 'product_season', 'season_id', 'product_id');
+        return $this->belongsToMany(Season::class, 'product_season', 'season_id', 'product_id')->withPivot(['seasonal_price']);
     }
 
     public function suppliers(): BelongsToMany {

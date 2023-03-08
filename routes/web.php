@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +17,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+
+Route::get('/products', [ProductController::class, 'index']);
+
+Route::get('/product/{sku_or_slug}', [ProductController::class, 'getBySkuOrSlug']);
+
+Route::get('/products/search/{term?}', [ProductController::class, 'search']);
