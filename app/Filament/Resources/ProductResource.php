@@ -3,20 +3,15 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
-use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Season;
 use App\Models\Supplier;
-use Closure;
 use Filament\Forms;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Livewire\TemporaryUploadedFile;
 
 class ProductResource extends Resource
 {
@@ -41,6 +36,7 @@ class ProductResource extends Resource
                 Forms\Components\TextInput::make('sku')
                     ->label('SKU')
                     ->length(8)
+                    ->unique(ignorable: fn ($record) => $record)
                     ->required(),
 
                 Forms\Components\TextInput::make('slug')
@@ -72,6 +68,7 @@ class ProductResource extends Resource
                 Forms\Components\Card::make([           
                     Forms\Components\TextInput::make('price')
                     ->label('Normal price')
+                    ->minValue(0)
                     ->suffix('CHF')
                     ->numeric()
                     ->columnSpan(2)
@@ -79,12 +76,15 @@ class ProductResource extends Resource
 
                     Forms\Components\Repeater::make('seasons')
                         ->relationship('seasonPrices')
+                        ->createItemButtonLabel('Add seasonal price')
+                        ->minItems(0)
                         ->schema([
                             Forms\Components\Select::make('season_id')
                                 ->label('season')
                                 ->options(Season::all()->pluck('name', 'id'))
                                 ->required(),
                             Forms\Components\TextInput::make('seasonal_price')
+                                ->minValue(0)
                                 ->suffix('CHF')
                                 ->numeric()
                                 ->required()
@@ -93,9 +93,11 @@ class ProductResource extends Resource
                     Forms\Components\Repeater::make('discounts')
                         ->relationship('discounts')
                         ->createItemButtonLabel('Add discount')
+                        ->minItems(0)
                         ->schema([
                             Forms\Components\TextInput::make('discount_price')
                                 ->label('Discount Price')
+                                ->minValue(0)
                                 ->suffix('CHF')
                                 ->numeric()
                                 ->required(),
@@ -126,9 +128,9 @@ class ProductResource extends Resource
                     Forms\Components\TextInput::make('calories')
                     ->label('Calories')
                     ->suffix('kCal')
+                    ->minValue(0)
                     ->numeric()
-                    ->maxValue(9999.99)
-                    ->required(),
+                    ->maxValue(9999.99),
                     Forms\Components\TextInput::make('sugar_in_calories')
                         ->label('Sugar')
                         ->suffix('cal')

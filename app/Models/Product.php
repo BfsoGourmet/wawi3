@@ -28,24 +28,43 @@ class Product extends Model
         'price',
         'image'
     ];
+    
 
 
-    public function getCurrentPrice() {
-        return 42069;
-        
+    public function getAmountInStock() {
+        return $this->supplierStocks->reduce(fn ($stock, $supplierStock) => $stock + $supplierStock->stock, 0);
+    }
+
+
+    public function getCurrentPrice() {        
         $assignedSeasonsForCurrentDate = Season::whereHas('seasonDates', function (Builder $query) {
-                                                    $query->where('season_dates.date_from', '>=', now());
-                                                    $query->where('season_dates.date_until', '<=', now());
+                                                    $query->where('season_dates.date_from', '<=', now());
+                                                    $query->where('season_dates.date_until', '>=', now());
                                                 })
-                                                ->whereIn('season.id', $this->seasons->map(fn ($season) => $season->id))
+                                                ->whereIn('seasons.id', $this->seasons->map(fn ($season) => $season->id))
                                                 ->get();
 
-        dd($this->id, $this->seasons()->allRelatedIds());
+        if ($assignedSeasonsForCurrentDate->count() > 0) {
+            return $this->seasonPrices()->where('season_id', $assignedSeasonsForCurrentDate->first()->id)->first()->seasonal_price;
+        }
+
+        // Check for discounts
+        $discount = $this->discounts()->where('discounts.discount_from', '<=', now())
+                                        ->where('discounts.discount_until', '>=', now())
+                                        ->orderBy('discounts.discount_price', 'ASC')
+                                        ->first();
+
+        if ($discount != NULL) {
+            return $discount->discount_price;
+        }
+
+        // Return the default price
+        return $this->price;
     }
 
 
     public function categories(): BelongsToMany {
-        return $this->belongsToMany(Category::class, 'category_product', 'category_id', 'product_id');
+        return $this->belongsToMany(Category::class, 'category_product', 'product_id', 'category_id');
     }
 
 
@@ -58,11 +77,11 @@ class Product extends Model
     }
 
     public function seasons(): BelongsToMany {
-        return $this->belongsToMany(Season::class, 'product_season', 'season_id', 'product_id')->withPivot(['seasonal_price']);
+        return $this->belongsToMany(Season::class, 'product_season', 'product_id', 'season_id')->withPivot(['seasonal_price']);
     }
 
     public function suppliers(): BelongsToMany {
-        return $this->belongsToMany(Supplier::class, 'product_supplier', 'supplier_id', 'product_id');
+        return $this->belongsToMany(Supplier::class, 'product_supplier', 'product_id', 'supplier_id');
     }
 
     public function supplierStocks(): HasMany {

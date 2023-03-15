@@ -18,11 +18,11 @@ return new class extends Migration
             $table->string('sku', 20);
             $table->string('title', 45);
             $table->tinyText('short_description');
-            $table->longText('description');
+            $table->longText('description')->nullable();
             $table->tinyInteger('is_vegetarian');
             $table->tinyInteger('is_vegan');
-            $table->decimal('calories', 6, 2);
-            $table->decimal('sugar_in_calories', 5, 2);
+            $table->decimal('calories', 6, 2)->nullable();
+            $table->decimal('sugar_in_calories', 5, 2)->nullable();
             $table->string('slug', 100);
             $table->decimal('price', 10, 2);
             $table->string('image', 300)->default(NULL);

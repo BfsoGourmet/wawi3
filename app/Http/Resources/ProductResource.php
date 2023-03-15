@@ -25,7 +25,7 @@ class ProductResource extends JsonResource
         // Yes -> convert to array
         return [
             "sku" => $this->sku,
-            "in_stock" => $this->in_stock,
+            "in_stock" => $this->getAmountInStock(),
             "title" => $this->title,
             "short_description" => $this->short_description,
             "description" => $this->description,
@@ -34,6 +34,7 @@ class ProductResource extends JsonResource
             "calories" => $this->calories,
             "sugar_in_calories" => $this->sugar_in_calories,
             "slug" => $this->slug,
+            "original_price" => $this->price,
             "price" => $this->getCurrentPrice(),
             "image" => !empty($this->image) ? URL::to('/') . '/storage/' . $this->image : '',
             "categories" => $this->categories,
