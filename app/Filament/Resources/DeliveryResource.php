@@ -8,11 +8,14 @@ use App\Models\Delivery;
 use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
+use Filament\Tables\Columns\TagsColumn;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -32,11 +35,26 @@ class DeliveryResource extends Resource
     {
         return $form
             ->schema([
-                Select::make('product_id')
-                ->multiple()
-                ->label('product')
-                ->relationship('product', 'title')
-                ->options(Product::all()->pluck('title', 'id')),
+                TextInput::make("fname"),
+                TextInput::make("lname"),
+                TextInput::make("address"),
+                TextInput::make("country"),
+                TextInput::make("zip"),
+                Forms\Components\Repeater::make('deliveryProducts')
+                        ->relationship('deliveryProducts')
+                        ->schema([
+                            Forms\Components\Select::make('product_id')
+                                ->label('Product')
+                                ->options(Product::all()->pluck('title', 'id'))
+                                ->required(),
+                            Forms\Components\TextInput::make('amount')
+                                ->suffix('x')
+                                ->numeric()
+                                ->required(),
+                            Forms\Components\TextInput::make('price')
+                                ->numeric()
+                                ->required()
+                        ]),
             ]);
     }
 
@@ -44,7 +62,10 @@ class DeliveryResource extends Resource
     {
         return $table
             ->columns([
-                
+                TextColumn::make("fname")->label("First Name"),
+                TextColumn::make("lname")->label("Last Name"),
+                TagsColumn::make('products')->label('Products')->getStateUsing(fn ($record) => $record->products->map(fn ($product) => $product->title)->toArray()),
+                TextColumn::make('price')->getStateUsing(fn ($record) => $record->deliveryProducts->reduce(fn ($price, $deliveryProduct) => $price + $deliveryProduct->price * $deliveryProduct->amount, 0) . ' CHF')
             ])
             ->filters([
                 //
