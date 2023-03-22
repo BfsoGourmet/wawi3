@@ -150,4 +150,14 @@ class Product extends Model
         return $this->belongsToMany(Allergy::class, 'allergy_product', 'product_id', 'allergy_id');
     }
 
+    /**
+     * Allergies
+     *
+     * @return BelongsToMany
+     */
+    public function deliveries(): BelongsToMany{
+        return $this->BelongsToMany(Delivery::class, 'delivery_product', 'product_id', 'delievery_id');
+    }
+
+    
 }
