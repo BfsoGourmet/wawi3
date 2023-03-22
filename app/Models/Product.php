@@ -31,12 +31,24 @@ class Product extends Model
     
 
 
+    /**
+     * Calculate the current amount of products in the stock
+     *
+     * @return int
+     */
     public function getAmountInStock() {
         return $this->supplierStocks->reduce(fn ($stock, $supplierStock) => $stock + $supplierStock->stock, 0);
     }
 
 
-    public function getCurrentPrice() {        
+    /**
+     * Calculates the current price of the product
+     *
+     * @return int
+     */
+    public function getCurrentPrice() {
+
+        // Check for any current active seasonal prices
         $assignedSeasonsForCurrentDate = Season::whereHas('seasonDates', function (Builder $query) {
                                                     $query->where('season_dates.date_from', '<=', now());
                                                     $query->where('season_dates.date_until', '>=', now());
@@ -44,17 +56,23 @@ class Product extends Model
                                                 ->whereIn('seasons.id', $this->seasons->map(fn ($season) => $season->id))
                                                 ->get();
 
+        // Did we find any?
         if ($assignedSeasonsForCurrentDate->count() > 0) {
+
+            // Yes -> return that price
             return $this->seasonPrices()->where('season_id', $assignedSeasonsForCurrentDate->first()->id)->first()->seasonal_price;
         }
 
-        // Check for discounts
+        // We got no seasonal price.. maybe any discounts?
         $discount = $this->discounts()->where('discounts.discount_from', '<=', now())
                                         ->where('discounts.discount_until', '>=', now())
                                         ->orderBy('discounts.discount_price', 'ASC')
                                         ->first();
 
+        // Is there an active discount
         if ($discount != NULL) {
+
+            // Yes -> return the discount price
             return $discount->discount_price;
         }
 
@@ -63,29 +81,73 @@ class Product extends Model
     }
 
 
+    /**
+     * Categories for this product
+     *
+     * @return BelongsToMany
+     */
     public function categories(): BelongsToMany {
         return $this->belongsToMany(Category::class, 'category_product', 'product_id', 'category_id');
     }
 
 
+    /**
+     * Discounts for this product
+     *
+     * @return HasMany
+     */
     public function discounts(): HasMany {
         return $this->hasMany(Discount::class);
     }
 
+
+    /**
+     * Seasonal prices
+     *
+     * @return HasMany
+     */
     public function seasonPrices(): HasMany {
         return $this->hasMany(ProductSeason::class);
     }
 
+
+    /**
+     * Assigned seasons
+     *
+     * @return BelongsToMany
+     */
     public function seasons(): BelongsToMany {
         return $this->belongsToMany(Season::class, 'product_season', 'product_id', 'season_id')->withPivot(['seasonal_price']);
     }
 
+
+    /**
+     * Suppliers
+     *
+     * @return BelongsToMany
+     */
     public function suppliers(): BelongsToMany {
         return $this->belongsToMany(Supplier::class, 'product_supplier', 'product_id', 'supplier_id');
     }
 
+
+    /**
+     * Supplier stocks
+     *
+     * @return HasMany
+     */
     public function supplierStocks(): HasMany {
         return $this->hasMany(ProductSupplier::class);
+    }
+
+
+    /**
+     * Allergies
+     *
+     * @return BelongsToMany
+     */
+    public function allergies(): BelongsToMany {
+        return $this->belongsToMany(Allergy::class, 'allergy_product', 'product_id', 'allergy_id');
     }
 
 }

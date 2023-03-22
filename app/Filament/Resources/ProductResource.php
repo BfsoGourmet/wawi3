@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
+use App\Models\Allergy;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Season;
@@ -111,6 +112,36 @@ class ProductResource extends Resource
                         ]),
                 ])->columns(),
 
+                Forms\Components\Card::make([
+                    Forms\COmponents\Builder\Block::make('food_properties')
+                    ->schema([
+                        Forms\Components\TextInput::make('calories')
+                        ->label('Calories')
+                        ->suffix('kCal')
+                        ->minValue(0)
+                        ->numeric()
+                        ->maxValue(9999.99),
+                        Forms\Components\TextInput::make('sugar_in_calories')
+                            ->label('Sugar')
+                            ->suffix('cal')
+                            ->minValue(0)
+                            ->maxValue(999.99)
+                            ->numeric(),
+                        Forms\Components\Checkbox::make('is_vegetarian')
+                            ->label('Vegetarian'),
+                        Forms\Components\Checkbox::make('is_vegan')
+                            ->label('Vegan')
+                    ]),
+                    Forms\Components\Builder\Block::make('allergies')
+                    ->schema([
+                        Forms\Components\Select::make('allergies')
+                            ->multiple()
+                            ->relationship('allergies', 'name')
+                            ->options(Allergy::all()->pluck('name', 'id'))
+                            ->required(),
+                    ]),
+                ])->columns(2),
+
                 Forms\Components\Repeater::make('supplierStocks')
                     ->relationship('supplierStocks')
                     ->schema([
@@ -122,26 +153,7 @@ class ProductResource extends Resource
                             ->numeric()
                             ->required()
                     ])
-                    ->required(),
-
-                Forms\Components\Card::make([
-                    Forms\Components\TextInput::make('calories')
-                    ->label('Calories')
-                    ->suffix('kCal')
-                    ->minValue(0)
-                    ->numeric()
-                    ->maxValue(9999.99),
-                    Forms\Components\TextInput::make('sugar_in_calories')
-                        ->label('Sugar')
-                        ->suffix('cal')
-                        ->minValue(0)
-                        ->maxValue(999.99)
-                        ->numeric(),
-                    Forms\Components\Checkbox::make('is_vegetarian')
-                        ->label('Vegetarian'),
-                    Forms\Components\Checkbox::make('is_vegan')
-                        ->label('Vegan')
-                ])->columns(2)
+                    ->required()
             ]);
     }
 
@@ -151,6 +163,7 @@ class ProductResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('title')->label('Title'),
                 Tables\Columns\TextColumn::make('short_description')->label('Short description'),
+                Tables\Columns\ImageColumn::make('image'),
                 Tables\Columns\BadgeColumn::make('is_vegetarian')->label('Vegetarian')
                     ->formatStateUsing(function ($state) { return $state ? 'Yes' : 'No'; })
                     ->color(function ($state) { return $state ? 'success' : 'warning'; }),
@@ -165,6 +178,7 @@ class ProductResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
