@@ -64,8 +64,8 @@ class DeliveryResource extends Resource
             ->columns([
                 TextColumn::make("fname")->label("First Name"),
                 TextColumn::make("lname")->label("Last Name"),
-                TagsColumn::make('products')->label('Products')->getStateUsing(fn ($record) => $record->products->map(fn ($product) => $product->title)->toArray()),
-                TextColumn::make('price')->getStateUsing(fn ($record) => $record->deliveryProducts->reduce(fn ($price, $deliveryProduct) => $price + $deliveryProduct->price * $deliveryProduct->amount, 0) . ' CHF')
+                TagsColumn::make('products')->label('Products')->getStateUsing(fn ($record) => $record->products->map(fn ($product) => $product->pivot->amount . 'x ' . $product->title)->toArray()),
+                TextColumn::make('price')->getStateUsing(fn($record) => $record->getTotalPrice() . ' CHF')
             ])
             ->filters([
                 //
