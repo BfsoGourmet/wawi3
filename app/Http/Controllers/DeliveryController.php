@@ -84,7 +84,7 @@ class DeliveryController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response($validator->errors(), 400);
+            return response(['error' => $validator->errors(), 'state' => FALSE], 400);
         }
 
         $delivery = new Delivery();
@@ -116,6 +116,6 @@ class DeliveryController extends Controller
         // Save the products
         $delivery->deliveryProducts()->saveMany($deliveryProducts);
 
-        return response('ok', 200);
+        return response(['state' => 'OK', 'delivery_id' => $delivery->id], 200);
     }
 }
