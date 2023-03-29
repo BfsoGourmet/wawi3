@@ -41,6 +41,42 @@ class Product extends Model
     }
 
 
+
+
+    /**
+     * Reduce the stock by an amount
+     */
+    public function reduceStock(int $amount) {
+
+        // Check if we have enaugh in stock
+        if ($amount > $this->getAmountInStock()) {
+            return FALSE;
+        }
+
+        // Reduce stock
+        $this->supplierStocks()->orderBy('stock', 'DESC')->get()->each(function ($suppliderStock) use (&$amount) {
+
+            // Check if we the supplier has something in stock and the amount is not already covered by other suppliers
+            if ($suppliderStock->stock > 0 && $amount > 0) {
+
+                // Check how much we can decrease the stock on the supplier
+                $maxPossibleAmount = min($suppliderStock->stock, $amount);
+
+                // Reduce amount of supplier
+                $suppliderStock->stock = $suppliderStock->stock - $maxPossibleAmount;
+
+                // Reduce the amount itself
+                $amount -= $maxPossibleAmount;
+
+                // Save the changes
+                $suppliderStock->save();
+            }
+        });
+
+        return TRUE;
+    }
+
+
     /**
      * Calculates the current price of the product
      *

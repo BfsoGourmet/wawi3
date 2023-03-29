@@ -25,7 +25,7 @@ return new class extends Migration
             $table->decimal('sugar_in_calories', 5, 2)->nullable();
             $table->string('slug', 100);
             $table->decimal('price', 10, 2);
-            $table->string('image', 300)->default(NULL);
+            $table->string('image', 300)->default(NULL)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
