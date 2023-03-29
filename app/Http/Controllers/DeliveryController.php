@@ -12,6 +12,30 @@ class DeliveryController extends Controller
 {
     
     /**
+     * Returns the products as 
+     * [
+     *      SKU => AMOUNT 
+     * ]
+     */
+    private function _parse_incoming_products(array $products) {
+        return array_reduce($products, function ($reduced, $requestedProduct) {
+
+            if (empty($requestedProduct['sku']) || empty($requestedProduct['amount'])) {
+                return $reduced;
+            }
+
+            if (!isset($reduced[$requestedProduct['sku']])) {
+                $reduced[$requestedProduct['sku']] = intval($requestedProduct['amount']);
+                return $reduced;
+            }
+
+            $reduced[$requestedProduct['sku']] += intval($requestedProduct['amount']);
+
+            return $reduced;
+        }, []);
+    }
+
+    /**
      * Create delivery
      */
     public function create(Request $request) {
@@ -22,23 +46,11 @@ class DeliveryController extends Controller
             'city' => 'required',
             'zip' => 'required|integer',
             'country' => 'required',
+            'address' => 'required',
             'products' => ['required', function ($field, $value, $fail) {
 
-                $value = array_reduce($value, function ($reduced, $requestedProduct) {
-
-                    if (empty($requestedProduct['sku']) || empty($requestedProduct['amount'])) {
-                        return $reduced;
-                    }
-
-                    if (!isset($reduced[$requestedProduct['sku']])) {
-                        $reduced[$requestedProduct['sku']] = intval($requestedProduct['amount']);
-                        return $reduced;
-                    }
-
-                    $reduced[$requestedProduct['sku']] += intval($requestedProduct['amount']);
-
-                    return $reduced;
-                }, []);
+                // Get the products correctly formatted
+                $value = $this->_parse_incoming_products($value);
                 
                 // Get the needed products
                 $products = Product::whereIn('sku', array_keys($value))->get();
@@ -56,7 +68,7 @@ class DeliveryController extends Controller
 
                     // Does it exist?
                     if (empty($product)) {
-                        return $fail('Product ' . $sku . ' was not found');
+                        return $fail('Product "' . $sku . '" was not found');
                     }
 
                     // Are there enough in stock?
@@ -77,19 +89,32 @@ class DeliveryController extends Controller
 
         $delivery = new Delivery();
         $delivery->fill($request->all());
-        
-        $delivery->deliveryProducts = array_map(function ($requestedProduct) {
-            $product = Product::where('sku', $requestedProduct['sku'])->first();
 
+        // Parse products
+        $parsedProducts = $this->_parse_incoming_products($request->products);
+        
+        $deliveryProducts = array_map(function ($sku, $amount) {
+
+            // Get the product
+            $product = Product::where('sku', $sku)->first();
+
+            // Reduct the stock by an amount
+            $product->reduceStock($amount);
+
+            // Create a new DeliveryProduct
             return (new DeliveryProduct())
                     ->fill([
-                        ...$requestedProduct,
+                        'amount' => $amount,
                         'product_id' => $product->id,
                         'price' => $product->getCurrentPrice()
                     ]);
-            } , $request->products);
-       
+        }, array_keys($parsedProducts), $parsedProducts);
+
+        // Save the delivery
         $delivery->save();
+        
+        // Save the products
+        $delivery->deliveryProducts()->saveMany($deliveryProducts);
 
         return response('ok', 200);
     }
